@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+	xsi:schemaLocation="http://www.springframework.org/schema/rabbit
+	http://www.springframework.org/schema/rabbit/spring-rabbit-1.4.xsd
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+	<!-- 定义RabbitMQ的连接工厂 -->
+	<rabbit:connection-factory id="connectionFactory"
+		host="${rabbit.ip}" port="${rabbit.port}" username="${rabbit.username}" password="${rabbit.password}"
+		virtual-host="${rabbit.vhost}" />
+
+	<!-- MQ的管理，包括队列、交换器等 -->
+	<rabbit:admin connection-factory="connectionFactory" />
+	
+	<!-- 定义消息队列 -->
+	<rabbit:queue name="personIdQueue" auto-declare="true"/>
+	
+	
+	
+	<!-- 定义监听  rabbitmq会将消息传递个这个类的指定的方法的参数
+		ref：spring容器中的类 rabbitItemService
+		method：找到类中的指定方法
+		queue-names: 绑定消息队列
+	 -->
+	<rabbit:listener-container connection-factory="connectionFactory" prefetch="1">
+		<rabbit:listener ref="rabbitService" method="savePersonId" queue-names="personIdQueue"/>
+	</rabbit:listener-container>
+
+</beans>
